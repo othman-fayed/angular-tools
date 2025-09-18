@@ -1,0 +1,62 @@
+<div class="app-container">
+  <div class="app-layout">
+    <!-- Dynamic Sidemenu -->
+    <div class="sidebar">
+      <app-dynamic-sidemenu-builder 
+        [pageOptions]="pageOptions"
+        [title]="'Angular Tools'"
+        [theme]="'light'"
+        [collapsible]="true"
+        [showToggle]="true"
+        (pageSelected)="onPageSelected($event)"
+        (menuToggled)="onMenuToggled($event)">
+      </app-dynamic-sidemenu-builder>
+    </div>
+
+    <!-- Main Content Area -->
+    <div class="main-content">
+      <header class="main-header">
+        <h1 class="h3 mb-0">{{ title() }}</h1>
+        <p class="text-muted">Dynamic Side Menu Components Demo</p>
+      </header>
+
+      <main class="content-area">
+        <div class="container-fluid">
+          <div class="row">
+            <div class="col-12">
+              <div class="card">
+                <div class="card-header">
+                  <h5 class="card-title mb-0">Welcome to Angular Tools</h5>
+                </div>
+                <div class="card-body">
+                  <p class="card-text">
+                    This application demonstrates the Dynamic Side Menu components built with Angular {{ getAngularVersion() }} and Bootstrap 5.
+                  </p>
+                  
+                  <h6>Features:</h6>
+                  <ul class="list-unstyled">
+                    <li><i class="bi bi-check-circle-fill text-success me-2"></i>Dynamic side menu with configurable options</li>
+                    <li><i class="bi bi-check-circle-fill text-success me-2"></i>Support for nested menu items</li>
+                    <li><i class="bi bi-check-circle-fill text-success me-2"></i>Bootstrap 5 styling and icons</li>
+                    <li><i class="bi bi-check-circle-fill text-success me-2"></i>Collapsible menu functionality</li>
+                    <li><i class="bi bi-check-circle-fill text-success me-2"></i>Badge support for notifications</li>
+                    <li><i class="bi bi-check-circle-fill text-success me-2"></i>Light and dark theme support</li>
+                    <li><i class="bi bi-check-circle-fill text-success me-2"></i>Responsive design</li>
+                  </ul>
+                  
+                  <div class="alert alert-info" role="alert">
+                    <i class="bi bi-info-circle me-2"></i>
+                    Click on menu items in the sidebar to see the dynamic behavior. Items with children will expand/collapse.
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Router outlet for future pages -->
+        <router-outlet></router-outlet>
+      </main>
+    </div>
+  </div>
+</div>
