@@ -1,0 +1,15 @@
+.dynamic-sidemenu-builder {
+  display: block;
+  height: 100%;
+  
+  app-dynamic-sidemenu {
+    display: block;
+    height: 100%;
+  }
+}
+
+// Ensure the builder takes full height when used in layouts
+:host {
+  display: block;
+  height: 100%;
+}
