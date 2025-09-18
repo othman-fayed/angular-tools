@@ -19,61 +19,56 @@
   <nav class="sidemenu-nav">
     <ul class="nav flex-column">
       <ng-container *ngFor="let page of config.pages; trackBy: trackByPageId">
-        <li class="nav-item" *ngIf="page.isVisible !== false">
-          
-          <!-- Parent menu item -->
-          <a class="nav-link" 
-             [class.active]="page.isActive"
-             [class.has-children]="page.children && page.children.length > 0"
-             [routerLink]="page.route || null"
-             [routerLinkActive]="'active'"
-             (click)="page.children && page.children.length > 0 ? toggleSubmenu(page) : selectPage(page)"
-             [attr.aria-expanded]="page.children && page.children.length > 0 ? page.isExpanded : null">
-            
-            <i *ngIf="page.icon && !config.collapsed" [class]="page.icon" class="menu-icon"></i>
-            <i *ngIf="page.icon && config.collapsed" [class]="page.icon" class="menu-icon-collapsed" 
-               [attr.title]="page.label"></i>
-            
-            <span class="menu-text" [class.d-none]="config.collapsed">{{ page.label }}</span>
-            
-            <span *ngIf="page.badge && !config.collapsed" 
-                  class="badge ms-auto" 
-                  [class]="'bg-' + (page.badge.color || 'primary')">
-              {{ page.badge.text }}
-            </span>
-            
-            <i *ngIf="page.children && page.children.length > 0 && !config.collapsed"
-               class="bi chevron-icon ms-auto"
-               [class.bi-chevron-down]="page.isExpanded"
-               [class.bi-chevron-right]="!page.isExpanded"></i>
-          </a>
-
-          <!-- Submenu items -->
-          <div class="submenu" *ngIf="page.children && page.children.length > 0" 
-               [class.show]="page.isExpanded" 
-               [class.d-none]="config.collapsed">
-            <ul class="nav flex-column ms-3">
-              <li class="nav-item" *ngFor="let child of page.children; trackBy: trackByPageId">
-                <a class="nav-link submenu-link" 
-                   [class.active]="child.isActive"
-                   [routerLink]="child.route || null"
-                   [routerLinkActive]="'active'"
-                   (click)="selectPage(child)">
-                  
-                  <i *ngIf="child.icon" [class]="child.icon" class="menu-icon"></i>
-                  <span class="menu-text">{{ child.label }}</span>
-                  
-                  <span *ngIf="child.badge" 
-                        class="badge ms-auto" 
-                        [class]="'bg-' + (child.badge.color || 'primary')">
-                    {{ child.badge.text }}
-                  </span>
-                </a>
-              </li>
-            </ul>
-          </div>
-        </li>
+        <ng-container *ngTemplateOutlet="menuItemTemplate; context: { $implicit: page, level: 0 }"></ng-container>
       </ng-container>
     </ul>
   </nav>
 </div>
+
+<!-- Recursive menu item template -->
+<ng-template #menuItemTemplate let-page let-level="level">
+  <li class="nav-item" *ngIf="page.isVisible !== false">
+
+    <!-- Menu link -->
+    <a class="nav-link"
+       [ngClass]="{
+         'submenu-link': level > 0,
+         'has-children': page.children && page.children.length > 0
+       }"
+       [class.active]="page.isActive"
+       [routerLink]="page.route || null"
+       [routerLinkActive]="'active'"
+       (click)="page.children && page.children.length > 0 ? toggleSubmenu(page) : selectPage(page)"
+       [attr.aria-expanded]="page.children && page.children.length > 0 ? page.isExpanded : null"
+       [attr.aria-level]="level + 1">
+
+      <i *ngIf="page.icon && !config.collapsed" [class]="page.icon" class="menu-icon"></i>
+      <i *ngIf="page.icon && config.collapsed" [class]="page.icon" class="menu-icon-collapsed"
+         [attr.title]="page.label"></i>
+
+      <span class="menu-text" [class.d-none]="config.collapsed">{{ page.label }}</span>
+
+      <span *ngIf="page.badge && !config.collapsed"
+            class="badge ms-auto"
+            [class]="'bg-' + (page.badge.color || 'primary')">
+        {{ page.badge.text }}
+      </span>
+
+      <i *ngIf="page.children && page.children.length > 0 && !config.collapsed"
+         class="bi chevron-icon ms-auto"
+         [class.bi-chevron-down]="page.isExpanded"
+         [class.bi-chevron-right]="!page.isExpanded"></i>
+    </a>
+
+    <!-- Nested submenu -->
+    <div class="submenu" *ngIf="page.children && page.children.length > 0"
+         [class.show]="page.isExpanded"
+         [class.d-none]="config.collapsed">
+      <ul class="nav flex-column ms-3">
+        <ng-container *ngFor="let child of page.children; trackBy: trackByPageId">
+          <ng-container *ngTemplateOutlet="menuItemTemplate; context: { $implicit: child, level: level + 1 }"></ng-container>
+        </ng-container>
+      </ul>
+    </div>
+  </li>
+</ng-template>
