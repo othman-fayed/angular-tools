@@ -1,0 +1,222 @@
+<div class="menu-builder-page">
+  <div class="container-fluid">
+    <div class="row">
+      
+      <!-- Builder Panel -->
+      <div class="col-lg-8">
+        <div class="card">
+          <div class="card-header d-flex justify-content-between align-items-center">
+            <h5 class="mb-0">
+              <i class="bi bi-tools me-2"></i>
+              Menu Builder
+            </h5>
+            <div class="btn-group" role="group">
+              <button class="btn btn-outline-primary btn-sm" (click)="addMenuItem()">
+                <i class="bi bi-plus me-1"></i>
+                Add Item
+              </button>
+              <button class="btn btn-outline-secondary btn-sm" (click)="clearMenu()">
+                <i class="bi bi-trash me-1"></i>
+                Clear All
+              </button>
+            </div>
+          </div>
+
+          <div class="card-body">
+            <!-- Presets Section -->
+            <div class="mb-4">
+              <h6>Quick Start with Presets</h6>
+              <div class="row">
+                <div class="col-md-3">
+                  <button 
+                    class="btn btn-outline-info w-100 mb-2" 
+                    [class.active]="selectedPreset === 'ecommerce'"
+                    (click)="loadPreset('ecommerce')">
+                    <i class="bi bi-shop me-2"></i>
+                    E-commerce
+                  </button>
+                </div>
+                <div class="col-md-3">
+                  <button 
+                    class="btn btn-outline-info w-100 mb-2"
+                    [class.active]="selectedPreset === 'admin'"
+                    (click)="loadPreset('admin')">
+                    <i class="bi bi-shield-check me-2"></i>
+                    Admin Panel
+                  </button>
+                </div>
+                <div class="col-md-3">
+                  <button 
+                    class="btn btn-outline-info w-100 mb-2"
+                    [class.active]="selectedPreset === 'simple'"
+                    (click)="loadPreset('simple')">
+                    <i class="bi bi-layout-text-sidebar me-2"></i>
+                    Simple Menu
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Menu Items List -->
+            <div class="menu-items-section">
+              <h6>Menu Items</h6>
+              
+              <div *ngIf="currentMenu().length === 0" class="text-center text-muted py-5">
+                <i class="bi bi-menu-button-wide-fill" style="font-size: 3rem;"></i>
+                <p class="mt-2">No menu items yet. Start by selecting a preset or adding a new item.</p>
+              </div>
+
+              <div *ngFor="let item of currentMenu(); trackBy: trackByPageId; let i = index" class="menu-item-card mb-3">
+                <div class="card">
+                  <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start">
+                      <div class="flex-grow-1">
+                        <div class="d-flex align-items-center mb-2">
+                          <i *ngIf="item.icon" [class]="item.icon" class="me-2"></i>
+                          <strong>{{ item.label }}</strong>
+                          <small class="text-muted ms-2" *ngIf="item.route">{{ item.route }}</small>
+                        </div>
+                        
+                        <!-- Children items display -->
+                        <div *ngIf="item.children && item.children.length > 0" class="ms-4">
+                          <small class="text-muted">
+                            <i class="bi bi-arrow-return-right me-1"></i>
+                            {{ item.children.length }} sub-item(s):
+                            <span *ngFor="let child of item.children; let last = last">
+                              {{ child.label }}<span *ngIf="!last">, </span>
+                            </span>
+                          </small>
+                        </div>
+                      </div>
+                      
+                      <div class="btn-group btn-group-sm">
+                        <button class="btn btn-outline-secondary" (click)="moveItem(item, 'up')">
+                          <i class="bi bi-arrow-up"></i>
+                        </button>
+                        <button class="btn btn-outline-secondary" (click)="moveItem(item, 'down')">
+                          <i class="bi bi-arrow-down"></i>
+                        </button>
+                        <button class="btn btn-outline-primary" (click)="editMenuItem(item)">
+                          <i class="bi bi-pencil"></i>
+                        </button>
+                        <button class="btn btn-outline-danger" (click)="deleteMenuItem(item.id)">
+                          <i class="bi bi-trash"></i>
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Edit Form Modal/Panel -->
+        <div *ngIf="isEditing" class="card mt-4">
+          <div class="card-header">
+            <h6 class="mb-0">
+              <i class="bi bi-pencil me-2"></i>
+              Edit Menu Item
+            </h6>
+          </div>
+          <div class="card-body">
+            <form (ngSubmit)="saveMenuItem()">
+              <div class="row">
+                <div class="col-md-6">
+                  <div class="mb-3">
+                    <label class="form-label">Label</label>
+                    <input 
+                      type="text" 
+                      class="form-control" 
+                      [(ngModel)]="editForm.label"
+                      name="label"
+                      required>
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <div class="mb-3">
+                    <label class="form-label">Route</label>
+                    <input 
+                      type="text" 
+                      class="form-control" 
+                      [(ngModel)]="editForm.route"
+                      name="route"
+                      placeholder="/path/to/page">
+                  </div>
+                </div>
+              </div>
+
+              <div class="row">
+                <div class="col-md-6">
+                  <div class="mb-3">
+                    <label class="form-label">Icon</label>
+                    <select 
+                      class="form-select" 
+                      [(ngModel)]="editForm.icon"
+                      name="icon">
+                      <option value="">No Icon</option>
+                      <option *ngFor="let icon of availableIcons" [value]="icon">
+                        {{ icon }}
+                      </option>
+                    </select>
+                    <div class="form-text">
+                      Preview: <i *ngIf="editForm.icon" [class]="editForm.icon"></i>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <div class="mb-3">
+                    <label class="form-label">Order</label>
+                    <input 
+                      type="number" 
+                      class="form-control" 
+                      [(ngModel)]="editForm.order"
+                      name="order"
+                      min="1">
+                  </div>
+                </div>
+              </div>
+
+              <div class="d-flex justify-content-end">
+                <button type="button" class="btn btn-secondary me-2" (click)="cancelEdit()">
+                  Cancel
+                </button>
+                <button type="submit" class="btn btn-primary">
+                  <i class="bi bi-check me-1"></i>
+                  Save Changes
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+
+      <!-- Preview Panel -->
+      <div class="col-lg-4">
+        <div class="card sticky-top" style="top: 1rem;">
+          <div class="card-header">
+            <h6 class="mb-0">
+              <i class="bi bi-eye me-2"></i>
+              Live Preview
+            </h6>
+          </div>
+          <div class="card-body p-0">
+            <div class="preview-container">
+              <app-dynamic-sidemenu 
+                [config]="previewConfig"
+                (pageSelected)="onPreviewPageSelected($event)"
+                (menuToggled)="onPreviewMenuToggled($event)">
+              </app-dynamic-sidemenu>
+            </div>
+          </div>
+          <div class="card-footer text-muted">
+            <small>
+              <i class="bi bi-info-circle me-1"></i>
+              This preview shows how your menu will look
+            </small>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

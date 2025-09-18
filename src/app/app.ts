@@ -15,11 +15,19 @@ export class App {
   // Sample page options to demonstrate the dynamic sidemenu
   pageOptions: PageOption[] = [
     {
+      id: 'menu-builder',
+      label: 'Menu Builder',
+      route: '/menu-builder',
+      icon: 'bi-tools',
+      isActive: true,
+      order: 0
+    },
+    {
       id: 'dashboard',
       label: 'Dashboard',
       route: '/dashboard',
       icon: 'bi-speedometer2',
-      isActive: true,
+      isActive: false,
       order: 1
     },
     {
