@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter } from '@angular/core';
+import { Component, Input, Output, EventEmitter, OnChanges, SimpleChanges } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { PageOption, SideMenuConfig } from '../../models/page-option.interface';
 import { DynamicSidemenu } from '../dynamic-sidemenu/dynamic-sidemenu';
@@ -9,20 +9,46 @@ import { DynamicSidemenu } from '../dynamic-sidemenu/dynamic-sidemenu';
   templateUrl: './dynamic-sidemenu-builder.html',
   styleUrl: './dynamic-sidemenu-builder.scss'
 })
-export class DynamicSidemenuBuilder {
+export class DynamicSidemenuBuilder implements OnChanges {
   @Input() pageOptions: PageOption[] = [];
   @Input() title: string = 'Navigation';
   @Input() theme: 'light' | 'dark' = 'light';
   @Input() collapsible: boolean = true;
   @Input() showToggle: boolean = true;
   @Input() sortPages: boolean = true;
-  
+
   @Output() pageSelected = new EventEmitter<PageOption>();
   @Output() menuToggled = new EventEmitter<boolean>();
   @Output() configChanged = new EventEmitter<SideMenuConfig>();
 
+  private collapsedState = false;
+
+  ngOnChanges(changes: SimpleChanges): void {
+    let shouldEmit = false;
+
+    if (changes['collapsible'] && !this.collapsible && this.collapsedState) {
+      this.collapsedState = false;
+      shouldEmit = true;
+    }
+
+    if (
+      changes['pageOptions'] ||
+      changes['title'] ||
+      changes['theme'] ||
+      changes['collapsible'] ||
+      changes['showToggle'] ||
+      changes['sortPages']
+    ) {
+      shouldEmit = true;
+    }
+
+    if (shouldEmit) {
+      this.emitConfigChanged();
+    }
+  }
+
   get sideMenuConfig(): SideMenuConfig {
-    const sortedPages = this.sortPages 
+    const sortedPages = this.sortPages
       ? this.sortPagesByOrder([...this.pageOptions])
       : this.pageOptions;
 
@@ -30,7 +56,7 @@ export class DynamicSidemenuBuilder {
       title: this.title,
       pages: sortedPages,
       collapsible: this.collapsible,
-      collapsed: false,
+      collapsed: this.collapsedState,
       theme: this.theme,
       showToggle: this.showToggle
     };
@@ -43,7 +69,30 @@ export class DynamicSidemenuBuilder {
   }
 
   onMenuToggled(collapsed: boolean): void {
+    if (this.collapsedState !== collapsed) {
+      this.collapsedState = collapsed;
+      this.emitConfigChanged();
+    }
     this.menuToggled.emit(collapsed);
+  }
+
+  private emitConfigChanged(): void {
+    this.configChanged.emit(this.sideMenuConfigSnapshot());
+  }
+
+  private sideMenuConfigSnapshot(): SideMenuConfig {
+    const sortedPages = this.sortPages
+      ? this.sortPagesByOrder([...this.pageOptions])
+      : this.pageOptions;
+
+    return {
+      title: this.title,
+      pages: sortedPages,
+      collapsible: this.collapsible,
+      collapsed: this.collapsedState,
+      theme: this.theme,
+      showToggle: this.showToggle
+    };
   }
 
   private sortPagesByOrder(pages: PageOption[]): PageOption[] {
