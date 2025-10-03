@@ -31,19 +31,27 @@ export class App {
       order: 1
     },
     {
+      id: 'sequence-designer',
+      label: 'Sequence Designer',
+      route: '/sequence-designer',
+      icon: 'bi-diagram-3',
+      isActive: false,
+      order: 2
+    },
+    {
       id: 'dashboard',
       label: 'Dashboard',
       route: '/dashboard',
       icon: 'bi-speedometer2',
       isActive: false,
-      order: 2
+      order: 3
     },
     {
       id: 'users',
       label: 'User Management',
       icon: 'bi-people',
       isExpanded: false,
-      order: 3,
+      order: 4,
       children: [
         {
           id: 'users-list',
@@ -74,7 +82,7 @@ export class App {
       label: 'Products',
       icon: 'bi-box-seam',
       isExpanded: false,
-      order: 4,
+      order: 5,
       children: [
         {
           id: 'products-list',
@@ -105,7 +113,7 @@ export class App {
       label: 'Orders',
       route: '/orders',
       icon: 'bi-cart',
-      order: 5,
+      order: 6,
       badge: {
         text: '5',
         color: 'danger'
@@ -115,7 +123,7 @@ export class App {
       id: 'reports',
       label: 'Analytics & Reports',
       icon: 'bi-graph-up',
-      order: 6,
+      order: 7,
       children: [
         {
           id: 'reports-sales',
@@ -136,7 +144,7 @@ export class App {
       label: 'Settings',
       route: '/settings',
       icon: 'bi-gear',
-      order: 7
+      order: 8
     }
   ];
 
