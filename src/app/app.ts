@@ -19,8 +19,16 @@ export class App {
       label: 'Menu Builder',
       route: '/menu-builder',
       icon: 'bi-tools',
-      isActive: true,
+      isActive: false,
       order: 0
+    },
+    {
+      id: 'razor-editor',
+      label: 'Razor Editor',
+      route: '/razor-editor',
+      icon: 'bi-code-slash',
+      isActive: true,
+      order: 1
     },
     {
       id: 'dashboard',
@@ -28,14 +36,14 @@ export class App {
       route: '/dashboard',
       icon: 'bi-speedometer2',
       isActive: false,
-      order: 1
+      order: 2
     },
     {
       id: 'users',
       label: 'User Management',
       icon: 'bi-people',
       isExpanded: false,
-      order: 2,
+      order: 3,
       children: [
         {
           id: 'users-list',
@@ -66,7 +74,7 @@ export class App {
       label: 'Products',
       icon: 'bi-box-seam',
       isExpanded: false,
-      order: 3,
+      order: 4,
       children: [
         {
           id: 'products-list',
@@ -97,7 +105,7 @@ export class App {
       label: 'Orders',
       route: '/orders',
       icon: 'bi-cart',
-      order: 4,
+      order: 5,
       badge: {
         text: '5',
         color: 'danger'
@@ -107,7 +115,7 @@ export class App {
       id: 'reports',
       label: 'Analytics & Reports',
       icon: 'bi-graph-up',
-      order: 5,
+      order: 6,
       children: [
         {
           id: 'reports-sales',
@@ -128,7 +136,7 @@ export class App {
       label: 'Settings',
       route: '/settings',
       icon: 'bi-gear',
-      order: 6
+      order: 7
     }
   ];
 

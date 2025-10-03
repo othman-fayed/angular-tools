@@ -1,0 +1,33 @@
+<div class="razor-editor-container">
+  <div class="editor-header">
+    <h2 class="editor-title">
+      <i class="bi bi-code-slash me-2"></i>
+      Razor Page Editor
+    </h2>
+    <div class="editor-actions">
+      <button class="btn btn-sm btn-outline-secondary me-2" (click)="resetCode()">
+        <i class="bi bi-arrow-clockwise me-1"></i>
+        Reset
+      </button>
+      <button class="btn btn-sm btn-outline-secondary me-2" (click)="clearCode()">
+        <i class="bi bi-trash me-1"></i>
+        Clear
+      </button>
+      <button class="btn btn-sm btn-primary" (click)="downloadCode()">
+        <i class="bi bi-download me-1"></i>
+        Download
+      </button>
+    </div>
+  </div>
+
+  <div class="editor-wrapper">
+    <div #editorContainer class="monaco-editor"></div>
+  </div>
+
+  <div class="editor-info">
+    <div class="info-item">
+      <i class="bi bi-info-circle me-2"></i>
+      <span>Write your Razor pages with syntax highlighting and IntelliSense support</span>
+    </div>
+  </div>
+</div>
