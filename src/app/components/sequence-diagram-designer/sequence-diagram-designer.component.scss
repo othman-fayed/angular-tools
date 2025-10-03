@@ -1,0 +1,153 @@
+.designer-container {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.toolbar {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+
+  .toolbar-spacer {
+    flex: 1;
+  }
+}
+
+.designer-body {
+  display: flex;
+  gap: 1.5rem;
+  flex-wrap: wrap;
+}
+
+.diagram-panel {
+  flex: 1 1 60%;
+  min-width: 320px;
+  background: #f8f9fa;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  border-radius: 0.75rem;
+  padding: 1rem;
+  overflow: auto;
+}
+
+.diagram-canvas {
+  width: 100%;
+  height: auto;
+}
+
+.arrow-head {
+  fill: #6c757d;
+}
+
+.connector {
+  stroke: #6c757d;
+  stroke-width: 2;
+  fill: none;
+}
+
+.connector.dashed {
+  stroke-dasharray: 6 4;
+}
+
+.phase-node {
+  cursor: pointer;
+  transition: transform 0.15s ease-in-out;
+
+  rect {
+    fill: #ffffff;
+    stroke: #0d6efd;
+    stroke-width: 2;
+  }
+
+  &.parallel rect {
+    stroke: #6610f2;
+  }
+
+  &.is-selected rect {
+    fill: rgba(13, 110, 253, 0.12);
+  }
+
+  &:hover rect {
+    filter: drop-shadow(0 0 6px rgba(13, 110, 253, 0.4));
+  }
+}
+
+.phase-name,
+.phase-type,
+.node-label {
+  font-family: 'Inter', 'Segoe UI', sans-serif;
+  text-anchor: middle;
+  fill: #212529;
+}
+
+.phase-name {
+  font-weight: 600;
+  font-size: 0.85rem;
+}
+
+.phase-type {
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  fill: #6c757d;
+}
+
+.start-node {
+  fill: #198754;
+  stroke: #0f5132;
+  stroke-width: 2;
+}
+
+.end-node {
+  fill: #dc3545;
+  stroke: #842029;
+  stroke-width: 2;
+}
+
+.node-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  fill: #343a40;
+}
+
+.properties-panel {
+  flex: 1 1 280px;
+  min-width: 260px;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  border-radius: 0.75rem;
+  padding: 1rem 1.25rem;
+  background: #ffffff;
+  box-shadow: 0 10px 30px rgba(15, 23, 42, 0.08);
+}
+
+.panel-title {
+  font-size: 1rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
+}
+
+.form-control.readonly {
+  background-color: #f8f9fa;
+}
+
+.export-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+textarea.form-control {
+  font-family: 'JetBrains Mono', 'Fira Code', monospace;
+  font-size: 0.85rem;
+  min-height: 200px;
+}
+
+@media (max-width: 992px) {
+  .diagram-panel {
+    flex: 1 1 100%;
+  }
+
+  .properties-panel {
+    flex: 1 1 100%;
+  }
+}

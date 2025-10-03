@@ -1,0 +1,209 @@
+<div class="designer-container">
+  <div class="toolbar">
+    <button type="button" class="btn btn-primary btn-sm" (click)="addPhase()">
+      <i class="bi bi-plus-circle me-1"></i>
+      Add phase
+    </button>
+    <button
+      type="button"
+      class="btn btn-outline-primary btn-sm"
+      (click)="addParallelPhase()"
+      [disabled]="selectedNode()?.type !== 'phase'"
+    >
+      <i class="bi bi-diagram-3 me-1"></i>
+      Add parallel phase
+    </button>
+    <button
+      type="button"
+      class="btn btn-outline-danger btn-sm"
+      (click)="deleteSelected()"
+      [disabled]="!selectedNode()"
+    >
+      <i class="bi bi-trash me-1"></i>
+      Delete selected
+    </button>
+    <div class="toolbar-spacer"></div>
+    <button type="button" class="btn btn-success btn-sm" (click)="downloadJson()">
+      <i class="bi bi-download me-1"></i>
+      Export JSON
+    </button>
+  </div>
+
+  <div class="designer-body">
+    <div class="diagram-panel">
+      <svg
+        class="diagram-canvas"
+        [attr.width]="diagramWidth()"
+        [attr.height]="diagramHeight()"
+        role="img"
+        aria-label="Lifecycle sequence diagram"
+      >
+        <defs>
+          <marker
+            id="arrow"
+            viewBox="0 0 10 10"
+            refX="8"
+            refY="5"
+            markerWidth="6"
+            markerHeight="6"
+            orient="auto-start-reverse"
+          >
+            <path d="M 0 0 L 10 5 L 0 10 z" class="arrow-head"></path>
+          </marker>
+        </defs>
+
+        <circle class="start-node" [attr.cx]="startX - 30" [attr.cy]="mainPhaseY + phaseHeight / 2" r="24"></circle>
+        <text
+          class="node-label"
+          [attr.x]="startX - 30"
+          [attr.y]="mainPhaseY + phaseHeight / 2 + 4"
+        >
+          Start
+        </text>
+
+        <line
+          *ngIf="phaseLayout().length > 0"
+          class="connector"
+          [attr.x1]="startX - 6"
+          [attr.y1]="mainPhaseY + phaseHeight / 2"
+          [attr.x2]="phaseLayout()[0].x - 10"
+          [attr.y2]="mainPhaseY + phaseHeight / 2"
+          marker-end="url(#arrow)"
+        ></line>
+
+        <ng-container *ngFor="let phase of phaseLayout(); let i = index; trackBy: trackPhase">
+          <g
+            class="phase-node"
+            [class.is-selected]="isPhaseSelected(phase.data.id)"
+            (click)="selectPhase(phase.data.id)"
+          >
+            <rect
+              [attr.x]="phase.x"
+              [attr.y]="phase.y"
+              [attr.width]="phase.width"
+              [attr.height]="phase.height"
+              rx="12"
+              ry="12"
+            ></rect>
+            <text class="phase-name" [attr.x]="phase.x + phase.width / 2" [attr.y]="phase.y + 32">
+              {{ phase.data.name }}
+            </text>
+            <text class="phase-type" [attr.x]="phase.x + phase.width / 2" [attr.y]="phase.y + phase.height - 16">
+              Phase
+            </text>
+          </g>
+
+          <line
+            *ngIf="i < phaseLayout().length - 1"
+            class="connector"
+            [attr.x1]="phase.x + phase.width"
+            [attr.y1]="phase.y + phase.height / 2"
+            [attr.x2]="phaseLayout()[i + 1].x - 10"
+            [attr.y2]="phaseLayout()[i + 1].y + phaseLayout()[i + 1].height / 2"
+            marker-end="url(#arrow)"
+          ></line>
+
+          <ng-container *ngFor="let subPhase of phase.subPhases; trackBy: trackSubPhase">
+            <path
+              class="connector"
+              [attr.d]="
+                'M ' + (phase.x + phase.width / 2) + ' ' + (phase.y + phase.height) +
+                ' V ' + (subPhase.y - 20) +
+                ' Q ' + (phase.x + phase.width / 2) + ' ' + (subPhase.y - 10) + ', ' +
+                (subPhase.x + subPhase.width / 2) + ' ' + (subPhase.y - 10) +
+                ' V ' + subPhase.y
+              "
+              marker-end="url(#arrow)"
+            ></path>
+
+            <g
+              class="phase-node parallel"
+              [class.is-selected]="isSubPhaseSelected(phase.data.id, subPhase.data.id)"
+              (click)="selectSubPhase(phase.data.id, subPhase.data.id); $event.stopPropagation()"
+            >
+              <rect
+                [attr.x]="subPhase.x"
+                [attr.y]="subPhase.y"
+                [attr.width]="subPhase.width"
+                [attr.height]="subPhase.height"
+                rx="10"
+                ry="10"
+              ></rect>
+              <text class="phase-name" [attr.x]="subPhase.x + subPhase.width / 2" [attr.y]="subPhase.y + 26">
+                {{ subPhase.data.name }}
+              </text>
+              <text class="phase-type" [attr.x]="subPhase.x + subPhase.width / 2" [attr.y]="subPhase.y + subPhase.height - 14">
+                Parallel
+              </text>
+            </g>
+
+            <line
+              *ngIf="getEndPosition(subPhase.data.targetEnd) as end"
+              class="connector dashed"
+              [attr.x1]="subPhase.x + subPhase.width"
+              [attr.y1]="subPhase.y + subPhase.height / 2"
+              [attr.x2]="end.x - endRadius"
+              [attr.y2]="end.y"
+              marker-end="url(#arrow)"
+            ></line>
+          </ng-container>
+
+          <line
+            *ngIf="getEndPosition(phase.data.targetEnd) as end"
+            class="connector dashed"
+            [attr.x1]="phase.x + phase.width"
+            [attr.y1]="phase.y + phase.height / 2"
+            [attr.x2]="end.x - endRadius"
+            [attr.y2]="end.y"
+            marker-end="url(#arrow)"
+          ></line>
+        </ng-container>
+
+        <ng-container *ngFor="let end of endPositions()">
+          <circle class="end-node" [attr.cx]="end.x" [attr.cy]="end.y" [attr.r]="endRadius"></circle>
+          <text class="node-label" [attr.x]="end.x" [attr.y]="end.y + 4">{{ end.label }}</text>
+        </ng-container>
+      </svg>
+    </div>
+
+    <div class="properties-panel">
+      <h5 class="panel-title">Inspector</h5>
+      <ng-container *ngIf="selectedNode(); else noSelection">
+        <div class="mb-3">
+          <label class="form-label">Name</label>
+          <input
+            type="text"
+            class="form-control form-control-sm"
+            [ngModel]="selectedName"
+            (ngModelChange)="updateSelectedName($event)"
+          />
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Type</label>
+          <div class="form-control form-control-sm readonly">{{ selectedTypeLabel }}</div>
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Converges to</label>
+          <select
+            class="form-select form-select-sm"
+            [ngModel]="selectedTargetEnd"
+            (ngModelChange)="updateSelectedEnd($event)"
+          >
+            <option *ngFor="let end of endNodes" [ngValue]="end.id">{{ end.label }}</option>
+          </select>
+        </div>
+        <div class="alert alert-info" role="alert">
+          Parallel phases inherit the sequential context of their parent and must reconnect to one of the end nodes.
+        </div>
+      </ng-container>
+      <ng-template #noSelection>
+        <p class="text-muted mb-0">Select a phase or parallel phase to edit its properties.</p>
+      </ng-template>
+    </div>
+  </div>
+
+  <div class="export-panel">
+    <label class="form-label">JSON structure</label>
+    <textarea class="form-control" rows="10" readonly>{{ exportedJson() }}</textarea>
+  </div>
+</div>
