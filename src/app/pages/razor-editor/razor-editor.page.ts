@@ -12,9 +12,10 @@ declare const monaco: any;
 })
 export class RazorEditorPage implements OnInit, AfterViewInit, OnDestroy {
   @ViewChild('editorContainer', { static: false }) editorContainer!: ElementRef;
-  
+
   private editor: any;
-  
+  private completionProviderDisposable: { dispose: () => void } | undefined;
+
   code = signal(`@page
 @model IndexModel
 @{
@@ -39,6 +40,58 @@ export class RazorEditorPage implements OnInit, AfterViewInit, OnDestroy {
 
   ngAfterViewInit(): void {
     loader.init().then((monacoInstance) => {
+      const indexModelProperties = [
+        {
+          label: 'Message',
+          insertText: 'Message',
+          documentation: 'Gets or sets the welcome message for the page.'
+        },
+        {
+          label: 'PageTitle',
+          insertText: 'PageTitle',
+          documentation: 'Gets or sets the title displayed on the page.'
+        },
+        {
+          label: 'LastUpdated',
+          insertText: 'LastUpdated',
+          documentation: 'Gets the timestamp representing the last update time.'
+        }
+      ];
+
+      this.completionProviderDisposable = monacoInstance.languages.registerCompletionItemProvider('razor', {
+        triggerCharacters: ['.'],
+        provideCompletionItems: (model: any, position: any, _context: any, _token: any) => {
+          const modelDeclarationRegex = /@model\s+IndexModel/;
+          if (!modelDeclarationRegex.test(model.getValue())) {
+            return { suggestions: [] };
+          }
+
+          const lineContent = model.getLineContent(position.lineNumber).slice(0, position.column - 1);
+          if (!/Model\.\w*$/.test(lineContent)) {
+            return { suggestions: [] };
+          }
+
+          const word = model.getWordUntilPosition(position);
+          const range = new monacoInstance.Range(
+            position.lineNumber,
+            word.startColumn,
+            position.lineNumber,
+            word.endColumn
+          );
+
+          const suggestions = indexModelProperties.map((property) => ({
+            label: property.label,
+            kind: monacoInstance.languages.CompletionItemKind.Property,
+            insertText: property.insertText,
+            range,
+            detail: 'IndexModel property',
+            documentation: property.documentation
+          }));
+
+          return { suggestions };
+        }
+      });
+
       this.editor = monacoInstance.editor.create(this.editorContainer.nativeElement, {
         value: this.code(),
         language: 'razor',
@@ -63,6 +116,7 @@ export class RazorEditorPage implements OnInit, AfterViewInit, OnDestroy {
     if (this.editor) {
       this.editor.dispose();
     }
+    this.completionProviderDisposable?.dispose();
   }
 
   clearCode(): void {
