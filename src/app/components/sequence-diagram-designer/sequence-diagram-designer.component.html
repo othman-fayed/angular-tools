@@ -93,15 +93,47 @@
             </text>
           </g>
 
-          <line
-            *ngIf="i < phaseLayout().length - 1"
-            class="connector"
-            [attr.x1]="phase.x + phase.width"
-            [attr.y1]="phase.y + phase.height / 2"
-            [attr.x2]="phaseLayout()[i + 1].x - 10"
-            [attr.y2]="phaseLayout()[i + 1].y + phaseLayout()[i + 1].height / 2"
-            marker-end="url(#arrow)"
-          ></line>
+          <!-- Success path to next phase -->
+          <ng-container *ngIf="getPhasePosition(phase.data.successNextPhaseId) as nextPos">
+            <line
+              class="connector success"
+              [attr.x1]="phase.x + phase.width"
+              [attr.y1]="phase.y + phase.height / 3"
+              [attr.x2]="nextPos.x - 10"
+              [attr.y2]="nextPos.y"
+              marker-end="url(#arrow)"
+              stroke="green"
+              stroke-width="2"
+            ></line>
+            <text
+              class="connector-label"
+              [attr.x]="phase.x + phase.width + 10"
+              [attr.y]="phase.y + phase.height / 3 - 5"
+              fill="green"
+              font-size="10"
+            >Success</text>
+          </ng-container>
+
+          <!-- Failure path to next phase -->
+          <ng-container *ngIf="getPhasePosition(phase.data.failureNextPhaseId) as nextPos">
+            <line
+              class="connector failure"
+              [attr.x1]="phase.x + phase.width"
+              [attr.y1]="phase.y + 2 * phase.height / 3"
+              [attr.x2]="nextPos.x - 10"
+              [attr.y2]="nextPos.y"
+              marker-end="url(#arrow)"
+              stroke="red"
+              stroke-width="2"
+            ></line>
+            <text
+              class="connector-label"
+              [attr.x]="phase.x + phase.width + 10"
+              [attr.y]="phase.y + 2 * phase.height / 3 - 5"
+              fill="red"
+              font-size="10"
+            >Failure</text>
+          </ng-container>
 
           <ng-container *ngFor="let subPhase of phase.subPhases; trackBy: trackSubPhase">
             <path
@@ -138,7 +170,7 @@
             </g>
 
             <line
-              *ngIf="getEndPosition(subPhase.data.targetEnd) as end"
+              *ngIf="getEndPositionFromPhaseOrSubPhase(subPhase.data.successPhaseId) as end"
               class="connector dashed"
               [attr.x1]="subPhase.x + subPhase.width"
               [attr.y1]="subPhase.y + subPhase.height / 2"
@@ -149,7 +181,7 @@
           </ng-container>
 
           <line
-            *ngIf="getEndPosition(phase.data.targetEnd) as end"
+            *ngIf="getEndPositionFromPhaseOrSubPhase(phase.data.successPhaseId) as end"
             class="connector dashed"
             [attr.x1]="phase.x + phase.width"
             [attr.y1]="phase.y + phase.height / 2"
@@ -182,6 +214,36 @@
           <label class="form-label">Type</label>
           <div class="form-control form-control-sm readonly">{{ selectedTypeLabel }}</div>
         </div>
+        
+        <ng-container *ngIf="selectedNode()?.type === 'phase'">
+          <div class="mb-3">
+            <label class="form-label">Success → Next Phase</label>
+            <select
+              class="form-select form-select-sm"
+              [ngModel]="selectedSuccessPhaseId"
+              (ngModelChange)="updateSelectedSuccessPhase($event || undefined)"
+            >
+              <option [ngValue]="undefined">None (End)</option>
+              <option *ngFor="let phase of getAvailablePhases(selectedNode()?.type === 'phase' ? selectedNode()!.phaseId : undefined)" [ngValue]="phase.id">
+                {{ phase.name }}
+              </option>
+            </select>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Failure → Next Phase</label>
+            <select
+              class="form-select form-select-sm"
+              [ngModel]="selectedFailurePhaseId"
+              (ngModelChange)="updateSelectedFailurePhase($event || undefined)"
+            >
+              <option [ngValue]="undefined">None (End)</option>
+              <option *ngFor="let phase of getAvailablePhases(selectedNode()?.type === 'phase' ? selectedNode()!.phaseId : undefined)" [ngValue]="phase.id">
+                {{ phase.name }}
+              </option>
+            </select>
+          </div>
+        </ng-container>
+
         <div class="mb-3">
           <label class="form-label">Converges to</label>
           <select
@@ -193,7 +255,12 @@
           </select>
         </div>
         <div class="alert alert-info" role="alert">
-          Parallel phases inherit the sequential context of their parent and must reconnect to one of the end nodes.
+          <ng-container *ngIf="selectedNode()?.type === 'phase'">
+            Each phase can lead to two next phases (success/failure) or converge to an end node.
+          </ng-container>
+          <ng-container *ngIf="selectedNode()?.type === 'subPhase'">
+            Parallel phases inherit the sequential context of their parent and must reconnect to one of the end nodes.
+          </ng-container>
         </div>
       </ng-container>
       <ng-template #noSelection>

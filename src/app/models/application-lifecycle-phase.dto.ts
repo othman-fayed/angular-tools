@@ -11,8 +11,8 @@ export interface ApplicationLifecycleSubPhaseDto {
   value?: number;
   lifecycleState?: ApplicationLifecycleState;
   isEnd: boolean;
-  failurePhaseId?: number;
-  successPhaseId?: number;
+  failurePhaseId?: number | string;
+  successPhaseId?: number | string;
   failureButtonText?: string;
   successButtonText?: string;
 }

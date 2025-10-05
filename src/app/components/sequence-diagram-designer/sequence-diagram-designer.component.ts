@@ -15,12 +15,14 @@ type SelectedNode =
 
 interface SequenceSubPhase extends ApplicationLifecycleSubPhaseDto {
   nodeType: Extract<SequenceNodeType, 'parallel'>;
-  targetEnd: number;
+  successNextPhaseId?: string;
+  failureNextPhaseId?: string;
 }
 
 interface SequencePhase extends ApplicationLifecyclePhaseDto {
   nodeType: Extract<SequenceNodeType, 'phase'>;
-  targetEnd: number;
+  successNextPhaseId?: string;
+  failureNextPhaseId?: string;
   subPhases: SequenceSubPhase[];
 }
 
@@ -229,14 +231,66 @@ export class SequenceDiagramDesignerComponent {
     this.phases.update(phases =>
       phases.map(phase => {
         if (selected.type === 'phase' && phase.id === selected.phaseId) {
-          return { ...phase, targetEnd, successPhaseId: targetEnd };
+          return { ...phase, successPhaseId: targetEnd };
         }
 
         if (selected.type === 'subPhase' && phase.id === selected.phaseId) {
           return {
             ...phase,
             subPhases: phase.subPhases.map(sub =>
-              sub.id === selected.subPhaseId ? { ...sub, targetEnd, successPhaseId: targetEnd } : sub
+              sub.id === selected.subPhaseId ? { ...sub, successPhaseId: targetEnd } : sub
+            ),
+          };
+        }
+
+        return phase;
+      })
+    );
+  }
+
+  updateSelectedSuccessPhase(successPhaseId: string | undefined): void {
+    const selected = this.selectedNode();
+    if (!selected) {
+      return;
+    }
+
+    this.phases.update(phases =>
+      phases.map(phase => {
+        if (selected.type === 'phase' && phase.id === selected.phaseId) {
+          return { ...phase, successNextPhaseId: successPhaseId };
+        }
+
+        if (selected.type === 'subPhase' && phase.id === selected.phaseId) {
+          return {
+            ...phase,
+            subPhases: phase.subPhases.map(sub =>
+              sub.id === selected.subPhaseId ? { ...sub, successNextPhaseId: successPhaseId } : sub
+            ),
+          };
+        }
+
+        return phase;
+      })
+    );
+  }
+
+  updateSelectedFailurePhase(failurePhaseId: string | undefined): void {
+    const selected = this.selectedNode();
+    if (!selected) {
+      return;
+    }
+
+    this.phases.update(phases =>
+      phases.map(phase => {
+        if (selected.type === 'phase' && phase.id === selected.phaseId) {
+          return { ...phase, failureNextPhaseId: failurePhaseId };
+        }
+
+        if (selected.type === 'subPhase' && phase.id === selected.phaseId) {
+          return {
+            ...phase,
+            subPhases: phase.subPhases.map(sub =>
+              sub.id === selected.subPhaseId ? { ...sub, failureNextPhaseId: failurePhaseId } : sub
             ),
           };
         }
@@ -260,6 +314,34 @@ export class SequenceDiagramDesignerComponent {
     return parent?.subPhases.find(sub => sub.id === selected.subPhaseId)?.name ?? '';
   }
 
+  get selectedSuccessPhaseId(): string | undefined {
+    const selected = this.selectedNode();
+    if (!selected) {
+      return undefined;
+    }
+
+    if (selected.type === 'phase') {
+      return this.phases().find(phase => phase.id === selected.phaseId)?.successNextPhaseId;
+    }
+
+    const parent = this.phases().find(phase => phase.id === selected.phaseId);
+    return parent?.subPhases.find(sub => sub.id === selected.subPhaseId)?.successNextPhaseId;
+  }
+
+  get selectedFailurePhaseId(): string | undefined {
+    const selected = this.selectedNode();
+    if (!selected) {
+      return undefined;
+    }
+
+    if (selected.type === 'phase') {
+      return this.phases().find(phase => phase.id === selected.phaseId)?.failureNextPhaseId;
+    }
+
+    const parent = this.phases().find(phase => phase.id === selected.phaseId);
+    return parent?.subPhases.find(sub => sub.id === selected.subPhaseId)?.failureNextPhaseId;
+  }
+
   get selectedTargetEnd(): number {
     const selected = this.selectedNode();
     if (!selected) {
@@ -267,13 +349,17 @@ export class SequenceDiagramDesignerComponent {
     }
 
     if (selected.type === 'phase') {
-      return this.phases().find(phase => phase.id === selected.phaseId)?.targetEnd ?? this.endNodes[0].id;
+      return this.phases().find(phase => phase.id === selected.phaseId)?.successPhaseId as number ?? this.endNodes[0].id;
     }
 
     const parent = this.phases().find(phase => phase.id === selected.phaseId);
     return (
-      parent?.subPhases.find(sub => sub.id === selected.subPhaseId)?.targetEnd ?? this.endNodes[0].id
+      parent?.subPhases.find(sub => sub.id === selected.subPhaseId)?.successPhaseId as number ?? this.endNodes[0].id
     );
+  }
+
+  getAvailablePhases(excludePhaseId?: string): SequencePhase[] {
+    return this.phases().filter(p => p.id !== excludePhaseId);
   }
 
   get selectedTypeLabel(): string {
@@ -287,6 +373,20 @@ export class SequenceDiagramDesignerComponent {
 
   getEndPosition(endId: number): { x: number; y: number } | undefined {
     return this.endPositions().find(end => end.id === endId);
+  }
+
+  getPhasePosition(phaseId: string | undefined): { x: number; y: number } | undefined {
+    if (!phaseId) return undefined;
+    const layout = this.phaseLayout().find(p => p.data.id === phaseId);
+    if (!layout) return undefined;
+    return { x: layout.x, y: layout.y + layout.height / 2 };
+  }
+
+  getEndPositionFromPhaseOrSubPhase(successPhaseId: string | number | undefined): { x: number; y: number } | undefined {
+    if (typeof successPhaseId === 'number') {
+      return this.getEndPosition(successPhaseId);
+    }
+    return undefined;
   }
 
   downloadJson(): void {
@@ -317,10 +417,11 @@ export class SequenceDiagramDesignerComponent {
       lifecycleState: 'InProgress',
       isEnd: false,
       failurePhaseId: undefined,
-      successPhaseId: 1,
+      successPhaseId: undefined,
       failureButtonText: undefined,
       successButtonText: undefined,
-      targetEnd: 1,
+      successNextPhaseId: undefined,
+      failureNextPhaseId: undefined,
       subPhases: [],
     };
   }
@@ -334,10 +435,11 @@ export class SequenceDiagramDesignerComponent {
       lifecycleState: 'InProgress',
       isEnd: false,
       failurePhaseId: undefined,
-      successPhaseId: 1,
+      successPhaseId: undefined,
       failureButtonText: undefined,
       successButtonText: undefined,
-      targetEnd: 1,
+      successNextPhaseId: undefined,
+      failureNextPhaseId: undefined,
     };
   }
 
@@ -348,8 +450,8 @@ export class SequenceDiagramDesignerComponent {
       value: phase.value,
       lifecycleState: phase.lifecycleState as ApplicationLifecycleState,
       isEnd: phase.isEnd,
-      failurePhaseId: phase.failurePhaseId,
-      successPhaseId: phase.targetEnd,
+      failurePhaseId: phase.failureNextPhaseId || phase.failurePhaseId,
+      successPhaseId: phase.successNextPhaseId || phase.successPhaseId,
       failureButtonText: phase.failureButtonText,
       successButtonText: phase.successButtonText,
       subPhases: phase.subPhases.map<ApplicationLifecycleSubPhaseDto>(sub => ({
@@ -358,8 +460,8 @@ export class SequenceDiagramDesignerComponent {
         value: sub.value,
         lifecycleState: sub.lifecycleState,
         isEnd: sub.isEnd,
-        failurePhaseId: sub.failurePhaseId,
-        successPhaseId: sub.targetEnd,
+        failurePhaseId: sub.failureNextPhaseId || sub.failurePhaseId,
+        successPhaseId: sub.successNextPhaseId || sub.successPhaseId,
         failureButtonText: sub.failureButtonText,
         successButtonText: sub.successButtonText,
       })),
