@@ -32,7 +32,7 @@ Located in `src/app/components/`:
 - **Signals**: Use Angular signals for reactive state management
 - **Routing**: File-based routing defined in `src/app/app.routes.ts`
 - **Component Naming**: Use `.page.ts` suffix for page components, `.component.ts` for reusable components
-- **Template Syntax**: Use Angular's standalone component pattern with `imports` array
+- **Template Syntax**: Use Angular's standalone component pattern with `imports` array. Use `@if` and `@for` directives where applicable. 
 - **Styling**: SCSS with component-scoped styles (`.scss` files)
 
 ### TypeScript Configuration
