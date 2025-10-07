@@ -39,19 +39,35 @@ export class App {
       order: 2
     },
     {
+      id: 'bpmn-modeler',
+      label: 'BPMN Modeler',
+      route: '/bpmn-modeler',
+      icon: 'bi-diagram-2',
+      isActive: false,
+      order: 3
+    },
+    {
+      id: 'logic-flow',
+      label: 'LogicFlow Designer',
+      route: '/logic-flow',
+      icon: 'bi-bezier2',
+      isActive: false,
+      order: 4
+    },
+    {
       id: 'dashboard',
       label: 'Dashboard',
       route: '/dashboard',
       icon: 'bi-speedometer2',
       isActive: false,
-      order: 3
+      order: 5
     },
     {
       id: 'users',
       label: 'User Management',
       icon: 'bi-people',
       isExpanded: false,
-      order: 4,
+      order: 6,
       children: [
         {
           id: 'users-list',
@@ -82,7 +98,7 @@ export class App {
       label: 'Products',
       icon: 'bi-box-seam',
       isExpanded: false,
-      order: 5,
+      order: 7,
       children: [
         {
           id: 'products-list',
@@ -113,7 +129,7 @@ export class App {
       label: 'Orders',
       route: '/orders',
       icon: 'bi-cart',
-      order: 6,
+      order: 8,
       badge: {
         text: '5',
         color: 'danger'
@@ -123,7 +139,7 @@ export class App {
       id: 'reports',
       label: 'Analytics & Reports',
       icon: 'bi-graph-up',
-      order: 7,
+      order: 9,
       children: [
         {
           id: 'reports-sales',
@@ -144,7 +160,7 @@ export class App {
       label: 'Settings',
       route: '/settings',
       icon: 'bi-gear',
-      order: 8
+      order: 10
     }
   ];
 
