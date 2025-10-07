@@ -1,0 +1,45 @@
+<div class="logic-flow-wrapper">
+  <div class="logic-flow-toolbar">
+    <h5 class="mb-0">LogicFlow Demo</h5>
+    <p class="text-muted mb-0">Interactive process flow with editable nodes and quick add options.</p>
+  </div>
+  <div class="logic-flow-canvas" #container></div>
+
+  <div class="logic-flow-floating-toolbar">
+    <div class="toolbar-group">
+      <h6 class="toolbar-heading">Add node</h6>
+      <div class="node-type-buttons">
+        <button type="button" class="btn btn-sm btn-outline-primary" (click)="addNode('rect')">
+          ▭ Task
+        </button>
+        <button type="button" class="btn btn-sm btn-outline-primary" (click)="addNode('circle')">
+          ◯ Event
+        </button>
+        <button type="button" class="btn btn-sm btn-outline-primary" (click)="addNode('diamond')">
+          ◆ Gateway
+        </button>
+      </div>
+    </div>
+
+    <div class="toolbar-group" *ngIf="selectedNode as node">
+      <h6 class="toolbar-heading">Edit node</h6>
+      <label class="form-label" for="nodeLabelInput">Label</label>
+      <input
+        id="nodeLabelInput"
+        type="text"
+        class="form-control form-control-sm"
+        [(ngModel)]="nodeLabel"
+        placeholder="Enter node label"
+      />
+      <div class="edit-actions">
+        <button type="button" class="btn btn-sm btn-primary" (click)="updateSelectedNodeLabel()">
+          Update label
+        </button>
+        <button type="button" class="btn btn-sm btn-outline-danger" (click)="deleteSelectedNode()">
+          Delete node
+        </button>
+      </div>
+      <p class="text-muted small mb-0">Selected: <strong>{{ node.id }}</strong> ({{ node.type }})</p>
+    </div>
+  </div>
+</div>

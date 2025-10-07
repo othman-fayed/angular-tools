@@ -1,0 +1,19 @@
+.bpmn-container {
+  display: flex;
+  height: 70vh;
+  border: 1px solid var(--bs-border-color, #dee2e6);
+  border-radius: 0.5rem;
+  overflow: hidden;
+  background-color: #fff;
+}
+
+.bpmn-canvas {
+  flex: 1 1 auto;
+  min-height: 100%;
+}
+
+.bpmn-properties {
+  width: 320px;
+  border-left: 1px solid var(--bs-border-color, #dee2e6);
+  background-color: #f8f9fa;
+}
