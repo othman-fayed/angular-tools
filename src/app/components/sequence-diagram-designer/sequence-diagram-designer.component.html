@@ -72,6 +72,24 @@
         ></line>
 
         <ng-container *ngFor="let phase of phaseLayout(); let i = index; trackBy: trackPhase">
+          <!-- Parallel group box -->
+          <rect
+            *ngIf="phase.parallelGroupBox"
+            class="parallel-group-box"
+            [attr.x]="phase.parallelGroupBox.x"
+            [attr.y]="phase.parallelGroupBox.y"
+            [attr.width]="phase.parallelGroupBox.width"
+            [attr.height]="phase.parallelGroupBox.height"
+            rx="8"
+            ry="8"
+          ></rect>
+          <text
+            *ngIf="phase.parallelGroupBox"
+            class="parallel-group-label"
+            [attr.x]="phase.parallelGroupBox.x + 8"
+            [attr.y]="phase.parallelGroupBox.y + 14"
+          >PARALLEL</text>
+
           <g
             class="phase-node"
             [class.is-selected]="isPhaseSelected(phase.data.id)"

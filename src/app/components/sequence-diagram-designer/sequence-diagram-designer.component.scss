@@ -36,17 +36,35 @@
 }
 
 .arrow-head {
-  fill: #6c757d;
+  fill: #343a40;
 }
 
 .connector {
-  stroke: #6c757d;
+  stroke: #343a40;
   stroke-width: 2;
   fill: none;
 }
 
 .connector.dashed {
   stroke-dasharray: 6 4;
+}
+
+.parallel-group-box {
+  fill: rgba(102, 16, 242, 0.03);
+  stroke: #6610f2;
+  stroke-width: 2;
+  stroke-dasharray: 8 4;
+  pointer-events: none;
+}
+
+.parallel-group-label {
+  font-family: 'Inter', 'Segoe UI', sans-serif;
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  fill: #6610f2;
+  pointer-events: none;
 }
 
 .phase-node {
