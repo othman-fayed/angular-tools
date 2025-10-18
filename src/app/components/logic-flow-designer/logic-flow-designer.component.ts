@@ -126,7 +126,7 @@ export class LogicFlowDesignerComponent implements AfterViewInit, OnDestroy {
   }
 
   protected updateSelectedNodeLabel(): void {
-    if (!this.lf || !this.selectedNode) {
+    if (!this.lf || !this.selectedNode || !this.selectedNode.id) {
       return;
     }
 
@@ -142,7 +142,7 @@ export class LogicFlowDesignerComponent implements AfterViewInit, OnDestroy {
   }
 
   protected deleteSelectedNode(): void {
-    if (!this.lf || !this.selectedNode) {
+    if (!this.lf || !this.selectedNode || !this.selectedNode.id) {
       return;
     }
 
