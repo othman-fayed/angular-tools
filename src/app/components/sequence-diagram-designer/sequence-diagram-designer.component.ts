@@ -33,6 +33,12 @@ interface PhaseLayoutNode {
   width: number;
   height: number;
   subPhases: PhaseLayoutSubNode[];
+  parallelGroupBox?: {
+    x: number;
+    y: number;
+    width: number;
+    height: number;
+  };
 }
 
 interface PhaseLayoutSubNode {
@@ -87,6 +93,22 @@ export class SequenceDiagramDesignerComponent {
         height: this.subPhaseHeight,
       }));
 
+      // Calculate parallel group box if there are subPhases
+      let parallelGroupBox: PhaseLayoutNode['parallelGroupBox'];
+      if (subPhases.length > 0) {
+        const padding = 20;
+        const firstSubPhaseY = subPhases[0].y;
+        const lastSubPhase = subPhases[subPhases.length - 1];
+        const lastSubPhaseBottomY = lastSubPhase.y + lastSubPhase.height;
+        
+        parallelGroupBox = {
+          x: x - padding / 2,
+          y: firstSubPhaseY - padding,
+          width: this.phaseWidth + padding,
+          height: lastSubPhaseBottomY - firstSubPhaseY + padding * 2,
+        };
+      }
+
       return {
         data: phase,
         x,
@@ -94,6 +116,7 @@ export class SequenceDiagramDesignerComponent {
         width: this.phaseWidth,
         height: this.phaseHeight,
         subPhases,
+        parallelGroupBox,
       };
     });
   });
